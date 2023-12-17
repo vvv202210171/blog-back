@@ -1,0 +1,27 @@
+spring:
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/forest_blog?autoReconnect=true&autoReconnectForPools=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.vvv.blog.entity
+  global-config:
+    db-config:
+      id-type: auto
+server:
+  port: 8090
+logging:
+  config: classpath:logback-spring.xml
+  file:
+    path: D:/logs
+  level:
+    dao: debug
+    org:
+      mybatis: debug
