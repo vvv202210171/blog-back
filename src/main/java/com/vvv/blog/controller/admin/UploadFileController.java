@@ -1,15 +1,21 @@
 package com.vvv.blog.controller.admin;
 
+import cn.hutool.core.date.DateUtil;
 import com.vvv.blog.dto.JsonResult;
 import com.vvv.blog.dto.UploadFileVO;
+import com.vvv.blog.enums.CodeEnum;
+import com.vvv.blog.util.QiniuUpload;
+import com.vvv.blog.util.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author liuyanzhao
@@ -34,7 +40,7 @@ public class UploadFileController {
      * @return
      * @throws IOException
      */
-    @RequestMapping(value = "/img", method = RequestMethod.POST)
+    @RequestMapping(value = "/img_v1", method = RequestMethod.POST)
     public JsonResult uploadFile(@RequestParam("file") MultipartFile file) {
 
         //1.文件后缀过滤，只允许部分后缀
@@ -89,5 +95,15 @@ public class UploadFileController {
         uploadFileVO.setTitle(filename);
         uploadFileVO.setSrc(fileUrl);
         return new JsonResult().ok(uploadFileVO);
+    }
+
+    @PostMapping("/img")
+    public Result uploadImage(@RequestParam("file") MultipartFile file) {
+        if (!file.isEmpty()) {
+            String fileName = DateUtil.format(new Date(), "yyyyMMddHHmmssSSS");
+            String imageUrl = QiniuUpload.uploadImage(file, fileName);
+            return Result.success(imageUrl);
+        }
+        return Result.fail(CodeEnum.PARAM_ERR);
     }
 }

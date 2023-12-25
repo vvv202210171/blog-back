@@ -18,13 +18,15 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
  * @author liuyanzhao
  */
-@Controller
+@RestController
 @RequestMapping("/admin/category")
 public class BackCategoryController {
 
@@ -66,9 +68,10 @@ public class BackCategoryController {
      * @return
      */
     @PostMapping(value = "/add")
-    public String insertCategorySubmit( @RequestBody @Validated ReqCategory category)  {
+    public Result insertCategorySubmit( @RequestBody @Validated ReqCategory category)  {
+
         categoryService.insertCategory(BeanUtil.copyProperties(category,Category.class));
-        return "redirect:/admin/category";
+        return Result.success();
     }
 
     /**
@@ -77,8 +80,8 @@ public class BackCategoryController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/delete/{id}")
-    public Result deleteCategory(@PathVariable("id") Integer id)  {
+    @GetMapping(value = "/delete")
+    public Result deleteCategory(@RequestParam Integer id)  {
         //禁止删除有文章的分类
         int count = articleService.countArticleByCategoryId(id);
 
@@ -108,7 +111,7 @@ public class BackCategoryController {
      * @return 重定向
      */
     @PostMapping(value = "/update")
-    public Result editCategorySubmit(ReqCategory category)  {
+    public Result editCategorySubmit(@Validated @RequestBody ReqCategory category)  {
         categoryService.updateCategory(BeanUtil.copyProperties(category,Category.class));
         return Result.success();
     }

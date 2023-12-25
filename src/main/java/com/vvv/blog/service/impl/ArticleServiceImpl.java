@@ -1,6 +1,7 @@
 package com.vvv.blog.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.vvv.blog.entity.*;
@@ -232,7 +233,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setArticleLikeCount(0);
         article.setArticleCommentCount(0);
         article.setArticleOrder(1);
-        if (StringUtils.isEmpty(article.getArticleThumbnail())) {
+        if (StrUtil.isEmpty(article.getArticleThumbnail())) {
             article.setArticleThumbnail("/img/thumbnail/random/img_" + RandomUtil.randomNumbers(1) + ".jpg");
         }
 

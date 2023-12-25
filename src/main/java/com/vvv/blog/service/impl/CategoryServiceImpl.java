@@ -1,9 +1,12 @@
 package com.vvv.blog.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import com.vvv.blog.entity.Category;
+import com.vvv.blog.enums.CodeEnum;
 import com.vvv.blog.mapper.ArticleCategoryRefMapper;
 import com.vvv.blog.mapper.CategoryMapper;
-import com.vvv.blog.entity.Category;
 import com.vvv.blog.service.CategoryService;
+import com.vvv.blog.util.BlogException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -32,14 +36,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteCategory(Integer id) {
-        try {
+            List<Category> childCategory = categoryMapper.findChildCategory(id);
+            if(CollUtil.isNotEmpty(childCategory)){
+                throw  new BlogException(CodeEnum.NOT_ALLOW_ERR,"当前分类有子分类不能删除");
+            }
             categoryMapper.deleteCategory(id);
             articleCategoryRefMapper.deleteByCategoryId(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("删除分类失败, id:{}, cause:{}", id, e);
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-        }
+
     }
 
     @Override
@@ -56,22 +59,25 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void updateCategory(Category category) {
-        try {
-            categoryMapper.update(category);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("更新分类失败, category:{}, cause:{}", category, e);
+        String categoryName = category.getCategoryName();
+        Category categoryDB = getCategoryByName(categoryName);
+        if(Objects.nonNull(categoryDB)&&!categoryDB.getCategoryId().equals(category.getCategoryId())){
+            throw new BlogException(CodeEnum.PARAM_ERR,"分类名称不能重复");
         }
+
+        categoryMapper.update(category);
+
     }
 
     @Override
     public Category insertCategory(Category category) {
-        try {
-            categoryMapper.insert(category);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("创建分类失败, category:{}, cause:{}", category, e);
+        String categoryName = category.getCategoryName();
+        Category categoryDB = getCategoryByName(categoryName);
+        if(Objects.nonNull(categoryDB)){
+            throw new BlogException(CodeEnum.PARAM_ERR,"分类名称不能重复");
         }
+
+        categoryMapper.insert(category);
         return category;
     }
 

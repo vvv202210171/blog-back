@@ -1,4 +1,16 @@
 spring:
+  spring:
+    redis:
+      database: 1
+      host: 127.0.0.1
+      port: 6379
+      timeout: 10s
+      lettuce:
+        pool:
+          max-active: 200
+          max-wait: -1ms
+          max-idle: 10
+          min-idle: 0
   profiles:
     active: dev
   datasource:
@@ -25,3 +37,8 @@ logging:
     dao: debug
     org:
       mybatis: debug
+qiniu:
+  endpoint: http://s5zzjcupl.hn-bkt.clouddn.com/
+  sk: 5-UgQu0jGWxdsKRNWvTZmxKJuCISztKQUct95SHl
+  ak: 9dVHqvqbQPsmHFgqqpQRjJ6x5NwrX62Wwa4OhTlS
+  bucket-name: blov

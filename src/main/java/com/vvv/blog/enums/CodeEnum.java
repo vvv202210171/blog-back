@@ -12,9 +12,9 @@ public enum CodeEnum {
     REGISTER_ERR(3, "注册失败"),
     AUTH_ERR(4, "权限不足"),
     PARAM_ERR(5, "参数错误"),
-    NOT_ALLOW_ERR(6, "不允许操作");
-
-
+    NOT_ALLOW_ERR(6, "不允许操作"),
+    LOGIN_EXPIRE_ERR(7, "请重新登陆"),
+    FILE_UPLOAD_ERR(8,"文件上传失败");
 
     CodeEnum(Integer code, String desc){
         this.code=code;

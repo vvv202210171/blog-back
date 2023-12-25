@@ -1,13 +1,12 @@
 package com.vvv.blog.controller.admin;
 
 import cn.dev33.satoken.secure.SaSecureUtil;
-import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.StaticLog;
+import com.vvv.blog.dto.ReqAdminPwd;
 import com.vvv.blog.dto.ReqRegisterUser;
 import com.vvv.blog.dto.ReqUser;
 import com.vvv.blog.dto.ReqUserLogin;
@@ -17,15 +16,20 @@ import com.vvv.blog.enums.UserRole;
 import com.vvv.blog.service.ArticleService;
 import com.vvv.blog.service.CommentService;
 import com.vvv.blog.service.UserService;
+import com.vvv.blog.util.BlogException;
 import com.vvv.blog.util.HttpUtils;
 import com.vvv.blog.util.Result;
 import com.vvv.blog.util.UserConntext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -61,23 +65,26 @@ public class AdminController {
 
         }
         try {
+            user.setUserPass(null);
             Integer userId = user.getUserId();
             // 第1步，先登录上
             StpUtil.login(userId);
             // 第2步，获取 Token  相关参数
             SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
-            SaLoginModel saLoginModel = SaLoginModel.create();
-            saLoginModel.setToken(tokenInfo.tokenValue);
-            Map<String, Object> userHashMap = MapUtil.of(userId.toString(), user);
-            saLoginModel.setExtraData(userHashMap);
-            StpUtil.createLoginSession(userId, saLoginModel);
+            UserConntext.setUser(user);
             user.setUserLastLoginTime(new Date());
             user.setUserLastLoginIp(HttpUtils.getIpAddr(request));
             userService.updateUser(user);
-            return Result.success(tokenInfo.getTokenValue());
+            Map<String, Object> info = new HashMap<String, Object>() {{
+                put("token", tokenInfo.getTokenValue());
+                put("tokenName", tokenInfo.getTokenName());
+                put("user", user);
+            }};
+
+            return Result.success(info);
         } catch (Exception e) {
             StaticLog.error("登陆失败【login】err", e);
-            return Result.fail(CodeEnum.LOGIN_ERR,e.getMessage());
+            return Result.fail(CodeEnum.LOGIN_ERR, e.getMessage());
         }
 
     }
@@ -129,6 +136,27 @@ public class AdminController {
      *
      * @return
      */
+    @PostMapping(value = "/edit_pwd")
+    public Result editPwd(@RequestBody @Validated ReqAdminPwd reqAdminPwd) {
+        User user = userService.getUserById(StpUtil.getLoginIdAsInt());
+        String oldPassword = reqAdminPwd.getOldPassword();
+        String newPassword = reqAdminPwd.getNewPassword();
+
+        String userPass = user.getUserPass();
+        if (!userPass.equals(SaSecureUtil.sha256(oldPassword))) {
+            throw new BlogException(CodeEnum.FAIL, "原密码不正确");
+        }
+
+        user.setUserPass(SaSecureUtil.sha256(newPassword));
+        userService.updateUser(user);
+        return Result.success();
+    }
+
+    /**
+     * 退出登录
+     *
+     * @return
+     */
     @RequestMapping(value = "/logout")
     public Result logout() {
         StpUtil.logout();
@@ -143,10 +171,8 @@ public class AdminController {
      */
     @RequestMapping(value = "/profile")
     public Result userProfileView() {
-      return  Result.success(UserConntext.getUser());
+        return Result.success(UserConntext.getUser());
     }
-
-
 
 
     /**
@@ -156,8 +182,9 @@ public class AdminController {
      * @return
      */
     @PostMapping(value = "/profile/save")
-    public Result saveProfile(@RequestBody ReqUser user) {
-        userService.updateUser(BeanUtil.copyProperties(user,User.class));
+    public Result saveProfile(@RequestBody @Validated ReqUser user) {
+        userService.updateUser(BeanUtil.copyProperties(user, User.class));
+        UserConntext.setUser(userService.getUserById(user.getUserId()));
         return Result.success();
     }
 
