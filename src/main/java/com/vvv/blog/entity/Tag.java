@@ -1,5 +1,6 @@
 package com.vvv.blog.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -19,6 +20,7 @@ public class Tag implements Serializable{
     /**
      * 文章数量(不是数据库字段)
      */
+    @TableField(exist = false)
     private Integer articleCount;
 
     public Tag() {

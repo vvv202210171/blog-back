@@ -1,6 +1,8 @@
 package com.vvv.blog.entity;
 
 
+import com.baomidou.mybatisplus.annotation.InterceptorIgnore;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -28,6 +30,7 @@ public class Category implements Serializable {
     /**
      * 文章数量(非数据库字段)
      */
+    @TableField(exist = false)
     private Integer articleCount;
 
     public Category(Integer categoryId, Integer categoryPid, String categoryName, String categoryDescription, Integer categoryOrder, String categoryIcon,Integer articleCount) {

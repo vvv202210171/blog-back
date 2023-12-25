@@ -1,6 +1,7 @@
 package com.vvv.blog.mapper;
 
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.vvv.blog.entity.Category;
 import com.vvv.blog.entity.ArticleCategoryRef;
 import org.apache.ibatis.annotations.Mapper;
@@ -12,7 +13,7 @@ import java.util.List;
  * @author liuyanzhao
  */
 @Mapper
-public interface ArticleCategoryRefMapper {
+public interface ArticleCategoryRefMapper  extends BaseMapper<ArticleCategoryRef> {
     
     /**
      * 添加文章和分类关联记录

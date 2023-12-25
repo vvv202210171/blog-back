@@ -1,5 +1,6 @@
 package com.vvv.blog.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.vvv.blog.entity.Tag;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -9,7 +10,7 @@ import java.util.List;
  * @author liuyanzhao
  */
 @Mapper
-public interface TagMapper {
+public interface TagMapper extends BaseMapper<Tag> {
 
     /**
      * 根据ID删除

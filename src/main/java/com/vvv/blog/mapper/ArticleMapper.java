@@ -1,5 +1,6 @@
 package com.vvv.blog.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.vvv.blog.entity.Article;
 import org.apache.ibatis.annotations.Mapper;
@@ -7,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 文章Mapper
@@ -14,7 +16,7 @@ import java.util.List;
  * @author liuyanzhao
  */
 @Mapper
-public interface ArticleMapper {
+public interface ArticleMapper extends BaseMapper<Article> {
 
     /**
      * 根据ID删除
@@ -38,7 +40,7 @@ public interface ArticleMapper {
      * @param article 文章
      * @return 文章
      */
-    Integer insert(Article article);
+    int insert(Article article);
 
     /**
      * 更新文章
@@ -222,11 +224,8 @@ public interface ArticleMapper {
      */
     List<Integer> listArticleIdsByUserId(Integer userId);
 
-    /**
-     * 获取文章分页列表
-     * @param criteria
-     * @param page
-     * @return
-     */
-    IPage findPage(HashMap<String, Object> criteria, IPage page);
+
+
+    IPage findArticlePage(IPage<Article> page,@Param("params") Map<String, Object> params );
+
 }

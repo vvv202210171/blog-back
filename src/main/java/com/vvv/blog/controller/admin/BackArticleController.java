@@ -21,17 +21,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 /**
  * @author liuyanzhao
  */
-@Controller
-@RestController("/admin/article")
+@RestController
+@RequestMapping("/admin/article")
 public class BackArticleController {
     @Autowired
     private ArticleService articleService;
@@ -68,16 +65,13 @@ public class BackArticleController {
      *
      * @return modelAndView
      */
-    @RequestMapping(value = "page")
+    @GetMapping(value = "page")
     public Result index(@RequestParam(required = false, defaultValue = "1") Integer pageIndex,
                         @RequestParam(required = false, defaultValue = "10") Integer pageSize,
-                        @RequestParam(required = false) String status
-    ) {
+                        @RequestParam(required = false)Map criteria
+                        ) {
 
-        HashMap<String, Object> criteria = new HashMap<>(1);
-        if (StrUtil.isNotEmpty(status)) {
-            criteria.put("status", status);
-        }
+
         User user = UserConntext.getUser();
         if (!UserRole.ADMIN.getValue().equals(user.getUserRole())) {
             // 用户查询自己的文章, 管理员查询所有的

@@ -1,6 +1,7 @@
 package com.vvv.blog.mapper;
 
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.vvv.blog.entity.ArticleTagRef;
 import com.vvv.blog.entity.Tag;
 import org.apache.ibatis.annotations.Mapper;
@@ -12,7 +13,7 @@ import java.util.List;
  * @author liuyanzhao
  */
 @Mapper
-public interface ArticleTagRefMapper {
+public interface ArticleTagRefMapper  extends BaseMapper<ArticleTagRef> {
     
     /**
      * 添加文章和标签关联记录

@@ -6,6 +6,7 @@ import com.vvv.blog.entity.Page;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 文章Service
@@ -109,7 +110,7 @@ public interface ArticleService {
      */
     IPage pageArticle(Integer pageIndex,
                       Integer pageSize,
-                      HashMap<String, Object> criteria);
+                      Map<String, Object> criteria);
 
     /**
      * 文章详情页面显示

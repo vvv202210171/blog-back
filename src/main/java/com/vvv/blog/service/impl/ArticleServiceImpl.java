@@ -1,7 +1,10 @@
 package com.vvv.blog.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.vvv.blog.entity.*;
@@ -14,10 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 文章Servie实现
@@ -31,13 +32,15 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Autowired
     private ArticleMapper articleMapper;
-
+    @Autowired
+    private CategoryMapper categoryMapper;
     @Autowired
     private ArticleCategoryRefMapper articleCategoryRefMapper;
 
     @Autowired
     private ArticleTagRefMapper articleTagRefMapper;
-
+    @Autowired
+    private TagMapper tagMapper;
     @Autowired
     private UserMapper userMapper;
 
@@ -162,24 +165,35 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public IPage<Article> pageArticle(Integer pageIndex,
                                       Integer pageSize,
-                                      HashMap<String, Object> criteria) {
+                                      Map<String, Object> criteria) {
         IPage<Article> page = new Page<>(pageIndex, pageSize);
-         page = articleMapper.findPage(criteria,page);
-        List<Article> articleList = page.getRecords();
-        for (int i = 0; i < articleList.size(); i++) {
-            //封装CategoryList
-            List<Category> categoryList = articleCategoryRefMapper.listCategoryByArticleId(articleList.get(i).getArticleId());
-            if (categoryList == null || categoryList.size() == 0) {
-                categoryList = new ArrayList<>();
-                categoryList.add(Category.Default());
-            }
-            articleList.get(i).setCategoryList(categoryList);
-
-            articleList.get(i).setUser(userMapper.getUserById(articleList.get(i).getArticleUserId()));
-            //封装TagList
-            List<Tag> tagList = articleTagRefMapper.listTagByArticleId(articleList.get(i).getArticleId());
-            articleList.get(i).setTagList(tagList);
+         page = articleMapper.findArticlePage(page,criteria);
+        List<Article> records = page.getRecords();
+        if(CollUtil.isEmpty(records)){
+            return page;
         }
+        Set<Integer> ids = records.stream().map(Article::getArticleId).collect(Collectors.toSet());
+        List<ArticleCategoryRef> articleCategoryRefs = articleCategoryRefMapper.selectList(new QueryWrapper<ArticleCategoryRef>().lambda().in(ArticleCategoryRef::getArticleId, ids));
+        Set<Integer> cateIds = articleCategoryRefs.stream().map(ArticleCategoryRef::getCategoryId).collect(Collectors.toSet());
+        List<Category> categories = categoryMapper.selectList(new QueryWrapper<Category>().lambda().in(Category::getCategoryId,cateIds));
+
+        List<ArticleTagRef> articleTagRefs = articleTagRefMapper.selectList(new QueryWrapper<ArticleTagRef>().lambda().in(ArticleTagRef::getArticleId, ids));
+        Set<Integer> tagIds = articleTagRefs.stream().map(ArticleTagRef::getTagId).collect(Collectors.toSet());
+        List<Tag> tags = tagMapper.selectList(new QueryWrapper<Tag>().lambda().in(Tag::getTagId, tagIds));
+
+        for (Article record : records) {
+            Integer articleId = record.getArticleId();
+            Set<Integer> finalCateIds = articleCategoryRefs.stream().filter(v -> v.getArticleId() == articleId).map(ArticleCategoryRef::getCategoryId).collect(Collectors.toSet());
+            List<Category> categoryList = categories.stream().filter(v -> finalCateIds.contains(v.getCategoryId())).collect(Collectors.toList());
+            record.setCategoryList(categoryList);
+            Set<Integer> finalTagIds = articleTagRefs.stream().filter(v -> v.getArticleId() == articleId).map(ArticleTagRef::getTagId).collect(Collectors.toSet());
+            List<Tag> tagList = tags.stream().filter(v -> finalTagIds.contains(v.getTagId())).collect(Collectors.toList());
+            record.setTagList(tagList);
+
+
+        }
+
+
         return page;
     }
 
