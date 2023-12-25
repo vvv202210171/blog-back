@@ -1,9 +1,11 @@
 package com.vvv.blog.service.impl;
 
+import com.vvv.blog.enums.CodeEnum;
 import com.vvv.blog.service.TagService;
 import com.vvv.blog.mapper.ArticleTagRefMapper;
 import com.vvv.blog.mapper.TagMapper;
 import com.vvv.blog.entity.Tag;
+import com.vvv.blog.util.BlogException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author 言曌
@@ -73,23 +76,25 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Tag insertTag(Tag tag) {
-        try {
-            tagMapper.insert(tag);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("添加标签失败, tag:{}, cause:{}", tag, e);
+        String tagName = tag.getTagName();
+        Tag tagByName = getTagByName(tagName);
+        if(Objects.nonNull(tagByName)){
+            throw new BlogException(CodeEnum.PARAM_ERR,"标签名不能重复");
         }
+        tagMapper.insert(tag);
+
         return tag;
     }
 
     @Override
     public void updateTag(Tag tag) {
-        try {
-            tagMapper.update(tag);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("更新标签失败, tag:{}, cause:{}", tag, e);
+        String tagName = tag.getTagName();
+        Tag tagByName = getTagByName(tagName);
+        if(Objects.nonNull(tagByName)&&tagByName.getTagId()!=tag.getTagId()){
+            throw new BlogException(CodeEnum.PARAM_ERR,"标签名不能重复");
         }
+            tagMapper.update(tag);
+
     }
 
     @Override

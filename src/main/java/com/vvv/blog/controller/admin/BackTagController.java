@@ -7,6 +7,7 @@ import com.vvv.blog.service.TagService;
 import com.vvv.blog.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -16,7 +17,7 @@ import java.util.List;
 /**
  * @author liuyanzhao
  */
-@Controller
+@RestController
 @RequestMapping("/admin/tag")
 public class BackTagController {
 
@@ -42,7 +43,7 @@ public class BackTagController {
      *
      * @return
      */
-    @RequestMapping(value = "list_count")
+    @GetMapping(value = "list_count")
     public Result index() {
         List<Tag> tagList = tagService.listTagWithCount();
         return Result.success(tagList);
@@ -56,7 +57,7 @@ public class BackTagController {
      * @return
      */
     @PostMapping(value = "/add")
-    public Result insertTagSubmit(@RequestBody Tag tag) {
+    public Result insertTagSubmit(@Validated @RequestBody Tag tag) {
         tagService.insertTag(tag);
         return Result.success();
     }
@@ -96,7 +97,7 @@ public class BackTagController {
      * @return
      */
     @PostMapping(value = "/update")
-    public Result editTagSubmit(@RequestBody Tag tag) {
+    public Result editTagSubmit(@RequestBody @Validated Tag tag) {
         tagService.updateTag(tag);
         return Result.success();
     }
