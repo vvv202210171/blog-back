@@ -69,12 +69,45 @@
       <include refid="condition"/>
     </select>
 
-    <select id="findPage">
+
+    <select id="findArticlePage" resultType="article" parameterType="java.util.Map">
         SELECT
-        article.*
+        article_id,
+        article_user_id,
+        article_title,
+        article_view_count,
+        article_comment_count,
+        article_like_count,
+        article_is_comment,
+        article_status,
+        article_order,
+        article_update_time,
+        article_create_time,
+        article_summary,
+        article_thumbnail
         FROM
         article
-        <include refid="condition"/>
+        <where>
+            1 = 1
+            <if test="params.status != null">
+                AND article.article_status = #{params.status}
+            </if>
+            <if test="params.articleTitle != null and params.articleTitle != ''">
+                AND  article.article_title LIKE concat(concat('%',#{params.articleTitle}),'%')
+            </if>
+            <if test="params.userId != null">
+                AND article.article_user_id = #{params.userId}
+            </if>
+            <if test="params.articleId != null and params.articleId != 0">
+                AND article.article_id = #{params.articleId}
+            </if>
+            <if test="params.startTime != null">
+                AND article.article_create_time>=#{params.startTime}
+            </if>
+            <if test="params.endTime != null">
+                AND article.article_create_time &lt;=#{params.endTime}
+            </if>
+        </where>
     </select>
     <delete id="deleteById" parameterType="java.lang.Integer">
         delete from
@@ -99,7 +132,7 @@
     </delete>
 
     <insert id="insert" parameterType="com.vvv.blog.entity.Article" useGeneratedKeys="true"
-            keyProperty="articleId">
+            keyProperty="articleId"  >
         insert into
         <include refid="tb"/>
         (article_user_id, article_title,
@@ -354,4 +387,5 @@
         WHERE
         article_user_id = #{userId}
     </select>
+
 </mapper>

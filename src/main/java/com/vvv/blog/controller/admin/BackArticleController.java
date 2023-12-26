@@ -19,6 +19,7 @@ import com.vvv.blog.util.UserConntext;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -153,7 +154,7 @@ public class BackArticleController {
      * @return
      */
     @GetMapping(value = "/get")
-    public Result editArticleView(Integer id) {
+    public Result editArticleView(@RequestParam Integer id) {
 
         Article article = getSuccessArticle(id);
 
@@ -178,11 +179,10 @@ public class BackArticleController {
     /**
      * 编辑文章提交
      *
-     * @param articleParam
      * @return
      */
     @PostMapping(value = "/update")
-    public Result editArticleSubmit(ReqArticle reqArticle) {
+    public Result editArticleSubmit(@RequestBody @Validated ReqArticle reqArticle) {
         Article dbArticle = getSuccessArticle(reqArticle.getArticleId());
         Article article = new Article();
         article.setArticleThumbnail(reqArticle.getArticleThumbnail());
@@ -190,6 +190,7 @@ public class BackArticleController {
         article.setArticleTitle(reqArticle.getArticleTitle());
         article.setArticleContent(reqArticle.getArticleContent());
         article.setArticleStatus(reqArticle.getArticleStatus());
+        article.setArticleOrder(reqArticle.getArticleOrder());
         //文章摘要
         int summaryLength = 150;
         String summaryText = HtmlUtil.cleanHtmlTag(article.getArticleContent());

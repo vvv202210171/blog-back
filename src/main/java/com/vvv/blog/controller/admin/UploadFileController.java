@@ -1,6 +1,7 @@
 package com.vvv.blog.controller.admin;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.vvv.blog.dto.JsonResult;
 import com.vvv.blog.dto.UploadFileVO;
 import com.vvv.blog.enums.CodeEnum;
@@ -98,9 +99,10 @@ public class UploadFileController {
     }
 
     @PostMapping("/img")
-    public Result uploadImage(@RequestParam("file") MultipartFile file) {
+    public Result uploadImage(@RequestParam("file") MultipartFile file,@RequestParam String dir) {
         if (!file.isEmpty()) {
             String fileName = DateUtil.format(new Date(), "yyyyMMddHHmmssSSS");
+             fileName = StrUtil.isEmpty(dir)? fileName:dir.concat("/").concat(fileName);
             String imageUrl = QiniuUpload.uploadImage(file, fileName);
             return Result.success(imageUrl);
         }

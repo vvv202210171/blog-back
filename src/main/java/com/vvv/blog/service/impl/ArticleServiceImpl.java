@@ -179,18 +179,23 @@ public class ArticleServiceImpl implements ArticleService {
 
         List<ArticleTagRef> articleTagRefs = articleTagRefMapper.selectList(new QueryWrapper<ArticleTagRef>().lambda().in(ArticleTagRef::getArticleId, ids));
         Set<Integer> tagIds = articleTagRefs.stream().map(ArticleTagRef::getTagId).collect(Collectors.toSet());
-        List<Tag> tags = tagMapper.selectList(new QueryWrapper<Tag>().lambda().in(Tag::getTagId, tagIds));
+        List<Tag> tags=null;
+        if (!CollUtil.isEmpty(tagIds)){
+          tags = tagMapper.selectList(new QueryWrapper<Tag>().lambda().in(Tag::getTagId, tagIds));
+        }
+
 
         for (Article record : records) {
             Integer articleId = record.getArticleId();
             Set<Integer> finalCateIds = articleCategoryRefs.stream().filter(v -> v.getArticleId() == articleId).map(ArticleCategoryRef::getCategoryId).collect(Collectors.toSet());
             List<Category> categoryList = categories.stream().filter(v -> finalCateIds.contains(v.getCategoryId())).collect(Collectors.toList());
             record.setCategoryList(categoryList);
+            if(CollUtil.isEmpty(tagIds)){
+                continue ;
+            }
             Set<Integer> finalTagIds = articleTagRefs.stream().filter(v -> v.getArticleId() == articleId).map(ArticleTagRef::getTagId).collect(Collectors.toSet());
             List<Tag> tagList = tags.stream().filter(v -> finalTagIds.contains(v.getTagId())).collect(Collectors.toList());
             record.setTagList(tagList);
-
-
         }
 
 
