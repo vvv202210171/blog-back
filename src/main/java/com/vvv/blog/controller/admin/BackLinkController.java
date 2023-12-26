@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * @author liuyanzhao
  */
-@Controller
+@RestController
 @RequestMapping("/admin/link")
 public class BackLinkController {
 
