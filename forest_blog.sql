@@ -543,3 +543,7 @@ INSERT INTO `user` VALUES (4, 'lisi', '123456', '李四', 'lisi@qq.com', '', '/i
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+ALTER TABLE page
+ADD PAGE_URL VARCHAR(100)

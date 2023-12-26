@@ -29,5 +29,5 @@ public class Page implements Serializable{
     private Integer pageCommentCount;
 
     private Integer pageStatus;
-
+    private String  pageUrl;
 }

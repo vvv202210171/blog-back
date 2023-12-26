@@ -1,11 +1,14 @@
 package com.vvv.blog.controller.admin;
 
 import com.vvv.blog.entity.Page;
+import com.vvv.blog.enums.CodeEnum;
 import com.vvv.blog.enums.PageStatus;
 import com.vvv.blog.service.PageService;
+import com.vvv.blog.util.BlogException;
 import com.vvv.blog.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -16,7 +19,7 @@ import java.util.Objects;
 /**
  * @author liuyanzhao
  */
-@Controller
+@RestController
 @RequestMapping("/admin/page")
 public class BackPageController {
 
@@ -28,7 +31,7 @@ public class BackPageController {
      *
      * @return
      */
-    @RequestMapping(value = "list")
+    @GetMapping(value = "list")
     public Result index() {
         List<Page> pageList = pageService.listPage(null);
         return Result.success(pageList);
@@ -42,16 +45,17 @@ public class BackPageController {
      * @return
      */
     @PostMapping(value = "/add")
-    public Result insertPageSubmit(Page page) {
+    public Result insertPageSubmit(@Validated @RequestBody Page page) {
 
         //判断别名是否存在
         Page checkPage = pageService.getPageByKey(null, page.getPageKey());
-        if (checkPage == null) {
-            page.setPageCreateTime(new Date());
-            page.setPageUpdateTime(new Date());
-            page.setPageStatus(PageStatus.NORMAL.getValue());
-            pageService.insertPage(page);
+        if (checkPage != null) {
+            throw new BlogException(CodeEnum.PARAM_ERR,"别名重复");
         }
+        page.setPageCreateTime(new Date());
+        page.setPageUpdateTime(new Date());
+        page.setPageStatus(PageStatus.NORMAL.getValue());
+        pageService.insertPage(page);
         return Result.success();
     }
 
@@ -89,10 +93,10 @@ public class BackPageController {
      * @return
      */
     @PostMapping(value = "/update")
-    public Result editPageSubmit(Page page) {
+    public Result update(@RequestBody @Validated Page page) {
         Page checkPage = pageService.getPageByKey(null, page.getPageKey());
         //判断别名是否存在且不是这篇文章
-        if (Objects.equals(checkPage.getPageId(), page.getPageId())) {
+        if (checkPage==null||Objects.equals(checkPage.getPageId(), page.getPageId())) {
             page.setPageUpdateTime(new Date());
             pageService.updatePage(page);
         }

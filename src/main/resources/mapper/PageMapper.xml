@@ -14,7 +14,7 @@
   </resultMap>
   <sql id="Base_Column_List" >
     page_id, page_key, page_title, page_content, page_create_time, page_update_time, 
-    page_view_count, page_comment_count, page_status
+    page_view_count, page_comment_count, page_status,page_url
   </sql>
 
   <sql id="tb">page</sql>
@@ -55,6 +55,7 @@
       <if test="pageViewCount != null" >page_view_count = #{pageViewCount,jdbcType=INTEGER},</if>
       <if test="pageCommentCount != null" >page_comment_count = #{pageCommentCount,jdbcType=INTEGER},</if>
       <if test="pageStatus != null" >page_status = #{pageStatus,jdbcType=INTEGER}</if>
+      <if test="pageUrl != null" >page_url = #{pageUrl,jdbcType=INTEGER}</if>
     </set>
     where page_id = #{pageId,jdbcType=INTEGER}
   </update>
