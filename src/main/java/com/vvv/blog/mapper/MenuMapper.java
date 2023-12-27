@@ -1,5 +1,6 @@
 package com.vvv.blog.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.vvv.blog.entity.Menu;
 
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 /**
  * @author liuyanzhao
  */
-public interface MenuMapper {
+public interface MenuMapper extends BaseMapper<Menu> {
 
     /**
      * 删除

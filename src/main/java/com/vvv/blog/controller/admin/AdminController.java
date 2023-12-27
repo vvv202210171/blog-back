@@ -16,10 +16,7 @@ import com.vvv.blog.enums.UserRole;
 import com.vvv.blog.service.ArticleService;
 import com.vvv.blog.service.CommentService;
 import com.vvv.blog.service.UserService;
-import com.vvv.blog.util.BlogException;
-import com.vvv.blog.util.HttpUtils;
-import com.vvv.blog.util.Result;
-import com.vvv.blog.util.UserConntext;
+import com.vvv.blog.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,7 +53,7 @@ public class AdminController {
      */
     @PostMapping(value = "/login")
     public Result login(@RequestBody @Validated ReqUserLogin reqUser, HttpServletRequest request) {
-        String password = SaSecureUtil.sha256(reqUser.getPassword());
+        String password = PassUtil.getEncodePas(reqUser.getPassword());
         User user = userService.getUserByNameOrEmail(reqUser.getUsername());
         String userPass = user.getUserPass();
 
@@ -111,7 +108,7 @@ public class AdminController {
             }
         }
 
-        String password = SaSecureUtil.sha256(reqRegisterUser.getPassword());
+        String password = PassUtil.getEncodePas(reqRegisterUser.getPassword());
         // 添加用户
         User user = new User();
         user.setUserAvatar("/img/avatar/avatar.png");
@@ -143,7 +140,7 @@ public class AdminController {
         String newPassword = reqAdminPwd.getNewPassword();
 
         String userPass = user.getUserPass();
-        if (!userPass.equals(SaSecureUtil.sha256(oldPassword))) {
+        if (!userPass.equals(PassUtil.getEncodePas(oldPassword))) {
             throw new BlogException(CodeEnum.FAIL, "原密码不正确");
         }
 

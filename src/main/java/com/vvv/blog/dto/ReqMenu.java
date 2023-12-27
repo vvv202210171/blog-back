@@ -15,7 +15,7 @@ public class ReqMenu implements Serializable {
 
     @NotEmpty(message = "菜单名称不能为空")
     private String menuName;
-
+    @NotEmpty(message = "URL不能为空")
     private String menuUrl;
 
     private Integer menuLevel;

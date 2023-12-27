@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * @author liuyanzhao
  */
-@Controller
+@RestController
 @RequestMapping("/admin/menu")
 public class BackMenuController {
 
@@ -30,8 +30,8 @@ public class BackMenuController {
      *
      * @return
      */
-    @RequestMapping(value = "list")
-    public Result menuList(Model model)  {
+    @GetMapping(value = "list")
+    public Result menuList()  {
         List<Menu> menuList = menuService.listMenu();
         return Result.success(menuList);
     }
@@ -82,7 +82,7 @@ public class BackMenuController {
      * @param menu
      * @return
      */
-    @PostMapping
+    @PostMapping("/update")
     public Result editMenuSubmit(@RequestBody @Validated ReqMenu menu)  {
         menuService.updateMenu(BeanUtil.copyProperties(menu,Menu.class));
         return Result.success();

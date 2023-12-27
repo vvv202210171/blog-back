@@ -9,7 +9,7 @@ import java.util.HashSet;
 
 public class PasswdTest {
     public static void main(String[] args) {
-        boolean notEmpty = CollUtil.isEmpty(new ArrayList<>());
-        System.out.println(notEmpty);
+        Integer a=1;
+        Long b=1L;
     }
 }
