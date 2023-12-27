@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 
-@Controller
+@RestController
 @RequestMapping("/admin/notice")
 public class BackNoticeController {
 
@@ -30,7 +30,7 @@ public class BackNoticeController {
      * @return
      */
     @GetMapping(value = "list")
-    public Result index(Model model) {
+    public Result index() {
         List<Notice> noticeList = noticeService.listNotice(null);
         return Result.success(noticeList);
 
