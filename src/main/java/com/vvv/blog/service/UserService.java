@@ -1,5 +1,7 @@
 package com.vvv.blog.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.vvv.blog.dto.UserPageDto;
 import com.vvv.blog.entity.User;
 
 import java.util.List;
@@ -70,4 +72,6 @@ public interface UserService {
      * @return 用户
      */
     User getUserByEmail(String email);
+
+    IPage<User> page(UserPageDto userPageDto);
 }

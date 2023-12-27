@@ -1,15 +1,24 @@
 package com.vvv.blog.controller.admin;
 
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.vvv.blog.dto.ReqAddUser;
+import com.vvv.blog.dto.ReqUpdateUser;
+import com.vvv.blog.dto.UserPageDto;
 import com.vvv.blog.entity.User;
 import com.vvv.blog.enums.CodeEnum;
 import com.vvv.blog.enums.UserRole;
 import com.vvv.blog.service.UserService;
 import com.vvv.blog.util.BlogException;
+import com.vvv.blog.util.PassUtil;
 import com.vvv.blog.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -21,7 +30,7 @@ import java.util.*;
 /**
  * @author liuyanzhao
  */
-@Controller
+@RestController
 @RequestMapping("/admin/user")
 public class BackUserController {
 
@@ -39,7 +48,17 @@ public class BackUserController {
         return Result.success(userList);
 
     }
-
+    /**
+     * 后台用户列表显示
+     *
+     * @return
+     */
+    @RequestMapping(value = "page")
+    public Result page(@RequestParam Map<String,Object> map) {
+        UserPageDto userPageDto = BeanUtil.fillBeanWithMap(map, new UserPageDto(),true);
+        IPage<User> userIPage= userService.page(userPageDto);
+        return Result.success(userIPage);
+    }
 
     /**
      * 检查用户名是否存在
@@ -70,22 +89,21 @@ public class BackUserController {
     /**
      * 后台添加用户页面提交
      *
-     * @param user
+     * @param reqAddUser
      * @return
      */
-    @RequestMapping(value = "/insertSubmit", method = RequestMethod.POST)
-    public Result insertUserSubmit(@RequestBody User user) {
-        User userName = userService.getUserByNameOrEmail(user.getUserName());
+    @PostMapping(value = "/add")
+    public Result add(@RequestBody ReqAddUser reqAddUser) {
+        User userName = userService.getUserByNameOrEmail(reqAddUser.getUserName());
         if(Objects.nonNull(userName)){
             throw new BlogException(CodeEnum.PARAM_ERR,"用户已经存在");
         }
-        if(StrUtil.isNotEmpty(user.getUserEmail())){
-            User email = userService.getUserByNameOrEmail(user.getUserEmail());
+            User email = userService.getUserByNameOrEmail(reqAddUser.getUserEmail());
             if(Objects.nonNull(email)){
                 throw new BlogException(CodeEnum.PARAM_ERR,"邮箱已经存在");
             }
-        }
-
+        User user = BeanUtil.copyProperties(reqAddUser, User.class);
+        user.setUserPass(PassUtil.getEncodePas(user.getUserPass()));
         user.setUserRegisterTime(new Date());
         user.setUserStatus(1);
         user.setUserRole(UserRole.USER.getValue());
@@ -114,19 +132,25 @@ public class BackUserController {
      */
     @GetMapping(value = "/get")
     public Result get(@RequestParam("id") Integer id) {
-        return Result.success(userService.getUserById(id));
+        User user = userService.getUserById(id);
+        user.setUserPass(null);
+        return Result.success(user);
     }
 
 
     /**
      * 编辑用户提交
      *
-     * @param user
+     * @param reqUpdateUser
      * @return
      */
     @PostMapping(value = "/update")
-    public Result update(@RequestBody User user) {
-        userService.updateUser(user);
+    public Result update(@RequestBody @Validated ReqUpdateUser reqUpdateUser) {
+        String userPass = reqUpdateUser.getUserPass();
+        if(StrUtil.isNotEmpty(userPass)){
+            reqUpdateUser.setUserPass(PassUtil.getEncodePas(userPass));
+        }
+        userService.updateUser(BeanUtil.copyProperties(reqUpdateUser,User.class));
         return Result.success();
     }
 }
