@@ -8,17 +8,14 @@ import com.vvv.blog.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 
 /**
  * @author liuyanzhao
  */
-@Controller
+@RestController
 @RequestMapping("/admin/options")
 public class BackOptionsController {
 
@@ -31,7 +28,7 @@ public class BackOptionsController {
      *
      * @return
      */
-    @RequestMapping(value = "list")
+    @GetMapping(value = "list")
     public Result index()  {
         Options option = optionsService.getOptions();
         return Result.success(option);
