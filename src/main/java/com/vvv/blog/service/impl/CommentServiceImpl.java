@@ -1,21 +1,27 @@
 package com.vvv.blog.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.vvv.blog.entity.Article;
 import com.vvv.blog.entity.Comment;
+import com.vvv.blog.entity.User;
 import com.vvv.blog.enums.ArticleStatus;
-import com.vvv.blog.mapper.CommentMapper;
+import com.vvv.blog.enums.UserRole;
 import com.vvv.blog.mapper.ArticleMapper;
+import com.vvv.blog.mapper.CommentMapper;
 import com.vvv.blog.service.CommentService;
+import com.vvv.blog.util.UserConntext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author 言曌
@@ -66,23 +72,28 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public IPage<Comment> listCommentByPage(Integer pageIndex, Integer pageSize, HashMap<String, Object> criteria) {
+    public IPage<Comment> listCommentByPage(Integer pageIndex, Integer pageSize) {
         IPage<Comment> page = new Page<>(pageIndex, pageSize);
-        List<Comment> commentList = null;
-        try {
-            commentList = commentMapper.listComment(criteria);
-            page.setRecords(commentList);
-            page.setTotal(commentList.size());
-            for (int i = 0; i < commentList.size(); i++) {
-                Article article = articleMapper.getArticleByStatusAndId(ArticleStatus.PUBLISH.getValue(), commentList.get(i).getCommentArticleId());
-                commentList.get(i).setArticle(article);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("分页获得评论失败,pageIndex:{}, pageSize:{}, cause:{}", pageIndex, pageSize, e);
+        User user = UserConntext.getUser();
+        String userRole = user.getUserRole();
+        boolean isAdmin = UserRole.ADMIN.getValue().equals(userRole);
+        IPage<Comment> commentIPage = commentMapper.selectPage(page, new QueryWrapper<Comment>().lambda()
+                .eq(!isAdmin, Comment::getCommentUserId, user.getUserId())
+                .orderByDesc(Comment::getCommentCreateTime)
+        );
+        List<Comment> records = commentIPage.getRecords();
+        if (CollUtil.isEmpty(records)) {
+            return commentIPage;
         }
-
-        return page;
+        Set<Integer> articleIds = records.stream().map(Comment::getCommentArticleId).collect(Collectors.toSet());
+        List<Article> articles = articleMapper.selectList(new QueryWrapper<Article>().lambda()
+                .in(Article::getArticleId, articleIds)
+                .eq(Article::getArticleStatus, ArticleStatus.PUBLISH.getValue()));
+        for (Comment record : records) {
+            Article article = articles.stream().filter(v -> v.getArticleId().equals(record.getCommentArticleId())).findAny().get();
+            record.setArticle(article);
+        }
+        return commentIPage;
     }
 
     @Override

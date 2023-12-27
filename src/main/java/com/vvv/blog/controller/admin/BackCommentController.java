@@ -33,7 +33,7 @@ import java.util.*;
 /**
  * @author liuyanzhao
  */
-@Controller
+@RestController
 @RequestMapping("/admin/comment")
 public class BackCommentController {
 
@@ -74,12 +74,8 @@ public class BackCommentController {
     public Result commentList(@RequestParam(required = false, defaultValue = "1") Integer pageIndex,
                               @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
         User user = UserConntext.getUser();
-        HashMap<String, Object> criteria = new HashMap<>();
-        if (!UserRole.ADMIN.getValue().equals(user.getUserRole())) {
-            // 用户查询自己的文章, 管理员查询所有的
-            criteria.put("userId", user.getUserId());
-        }
-        IPage<Comment> commentPageInfo = commentService.listCommentByPage(pageIndex, pageSize, criteria);
+
+        IPage<Comment> commentPageInfo = commentService.listCommentByPage(pageIndex, pageSize);
         return Result.success(commentPageInfo);
     }
 

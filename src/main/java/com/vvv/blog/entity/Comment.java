@@ -1,5 +1,6 @@
 package com.vvv.blog.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -48,6 +49,7 @@ public class Comment implements Serializable {
      */
     private Integer commentUserId;
 
+    @TableField(exist = false)
     /**
      * 非数据库字段
      */

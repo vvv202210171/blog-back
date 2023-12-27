@@ -48,8 +48,7 @@ public interface CommentService {
      */
    IPage listCommentByPage(
             Integer pageIndex,
-            Integer pageSize,
-            HashMap<String, Object> criteria);
+            Integer pageSize);
 
     /**
      * 获得某个用户收到的评论

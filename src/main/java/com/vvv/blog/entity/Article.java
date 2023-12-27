@@ -1,5 +1,7 @@
 package com.vvv.blog.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -41,11 +43,12 @@ public class Article implements Serializable{
     private String articleSummary;
 
     private String articleThumbnail;
-
+    @TableField(exist = false)
     private User user;
 
+    @TableField(exist = false)
     private List<Tag> tagList;
-
+    @TableField(exist = false)
     private List<Category> categoryList;
 
 }

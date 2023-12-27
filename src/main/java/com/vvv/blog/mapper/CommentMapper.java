@@ -1,5 +1,6 @@
 package com.vvv.blog.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.vvv.blog.entity.Comment;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -8,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Mapper
-public interface CommentMapper {
+public interface CommentMapper  extends BaseMapper<Comment> {
 
     /**
      * 根据ID删除
